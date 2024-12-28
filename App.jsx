@@ -6,8 +6,6 @@ import TabBar from './components/tab-bar';
 const Tab = createBottomTabNavigator();
 
 export default function App() {
-  
-
   return (
     <>
       <Tab.Navigator 
