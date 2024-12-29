@@ -1,9 +1,10 @@
 import { View, Text } from 'react-native';
+import PageWrapper from '@/components/page-wrapper';
 
 export default function FavoriteScreen() {
     return (
-        <View>
+        <PageWrapper>
             <Text>Favorite Screen</Text>
-        </View>
+        </PageWrapper>
     );
 }

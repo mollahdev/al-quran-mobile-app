@@ -1,6 +1,7 @@
 import { View, Text, Button, Image } from 'react-native';
 import { useState } from 'react';
 import { Audio } from 'expo-av';
+import PageWrapper from '@/components/page-wrapper';
 
 import data from '@/data';
 
@@ -27,8 +28,6 @@ export default function HomeScreen(props) {
 
       setSound(newSound);
       setIsPlaying(true);
-
-      console.log(newSound);
   
       newSound.setOnPlaybackStatusUpdate((status) => {
         if (!status.isLoaded) {
@@ -55,17 +54,25 @@ export default function HomeScreen(props) {
     }
 
     return (
-        <View>
-            <Text>Home Screen</Text>
-            <Image
-                source={data[0].artwork}
-                style={{ width: 100, height: 100 }}
-            />
-            <Button
-                title={isPlaying ? 'Pause' : 'Play'}
-                onPress={isPlaying ? pauseSound : playSound}
-            />
-            <Button title="Stop" onPress={stopSound} disabled={!isPlaying} />
-        </View>
+        <PageWrapper>
+          <View>
+              <Text>Home Screen</Text>
+              <Image
+                  source={data[0].artwork}
+                  style={{ width: 100, height: 100 }}
+              />
+              <Button
+                  title={isPlaying ? 'Pause' : 'Play'}
+                  onPress={isPlaying ? pauseSound : playSound}
+              />
+              <Button title="Stop" onPress={stopSound} disabled={!isPlaying} />
+              <Button
+                  title="Go to Details"
+                  onPress={() => navigation.navigate('Details', {
+                      id: 1,
+                  })}
+              />
+          </View>
+        </PageWrapper>
     );
 }
