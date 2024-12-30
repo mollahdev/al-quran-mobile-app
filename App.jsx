@@ -6,6 +6,7 @@ import DetailsScreen from 'screens/details';
 import SearchScreen from 'screens/search';
 import TabBar from 'components/tab-bar';
 import ListHeader from 'components/list-header';
+import DetailsHeader from 'screens/details/header';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -30,7 +31,7 @@ export default function App() {
         headerShown: false,
       }}/>
       <Stack.Screen name="Details" component={DetailsScreen} options={{
-        headerShown: false,
+        header: DetailsHeader,
       }}/>
       <Stack.Screen name="Search" component={SearchScreen} options={{
         headerShown: false,
