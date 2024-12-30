@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { registerRootComponent } from 'expo';
 import { NavigationContainer } from '@react-navigation/native';
+import { StoreProvider } from 'services/store';
 
 import App from './App';
 
@@ -12,9 +13,11 @@ const RootApp = () => {
     return (
         <>
             <StatusBar style="auto" />
-            <NavigationContainer>
-                <App />
-            </NavigationContainer>
+            <StoreProvider>
+                <NavigationContainer>
+                    <App />
+                </NavigationContainer>
+            </StoreProvider>  
         </>
     );
 }
