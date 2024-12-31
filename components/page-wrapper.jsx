@@ -1,6 +1,5 @@
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet } from "react-native";
-import colors from '@/constants/colors';
+import { StyleSheet, SafeAreaView } from "react-native";
+import colors from "@/constants/colors";
 
 export default function PageWrapper(props) {
     const { children } = props;
@@ -14,8 +13,7 @@ export default function PageWrapper(props) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         backgroundColor: colors.dark,
-        justifyContent: 'center',
+        flex: 1,
     },
 });

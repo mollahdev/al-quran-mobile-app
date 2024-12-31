@@ -51,16 +51,14 @@ export const StoreProvider = ({ children }) => {
      * toggle favorite track 
      */ 
     const toggleFavorite =  useCallback((trackId) => {
-        _setFavorite(async (prev) => {
-            const list = []
-            const index = prev.indexOf(trackId)
-            if (index === -1) {
-                list = [...prev, trackId]
+        _setFavorite((prev) => {
+            let list = Array.from(prev)
+            if (list.includes(trackId)) {
+                list = list.filter((item) => item !== trackId)
             } else {
-                list = prev.filter((item) => item !== trackId)
+                list.push(trackId)
             }
-
-            await AsyncStorage.setItem('favorite', JSON.stringify(list))
+            AsyncStorage.setItem('favorite', JSON.stringify(list))
             return list
         })
     }, [])
@@ -69,7 +67,7 @@ export const StoreProvider = ({ children }) => {
      * check if track is favorite
      */
     const isFavoriteById = useCallback((trackId) => {
-        return _favorite.indexOf(trackId) !== -1
+        return _favorite.includes(trackId)
     }, [_favorite])
 
     /**
@@ -81,7 +79,7 @@ export const StoreProvider = ({ children }) => {
 
         // update recent tracks list
         _setRecent((prev) => {
-            const state = structuredClone(prev)
+            const state = Array.from(prev)
             // check if track id already exists in recent, move this to first index
             const index = state.indexOf(data.trackId)
             if (index !== -1) {

@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { registerRootComponent } from 'expo';
 import { NavigationContainer } from '@react-navigation/native';
 import { StoreProvider } from 'services/store';
+import useSatoshiFont from 'services/fonts/use-satoshi';
 
 import App from './App';
 
@@ -10,9 +11,11 @@ import App from './App';
 // the environment is set up appropriately
 
 const RootApp = () => {
+    useSatoshiFont();
+
     return (
         <>
-            <StatusBar style="auto" />
+            <StatusBar style="light" />
             <StoreProvider>
                 <NavigationContainer>
                     <App />

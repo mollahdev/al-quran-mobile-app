@@ -13,6 +13,12 @@
         {
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": ["assets/fonts/satoshi-bold.otf", "assets/fonts/satoshi-regular.otf"]
+        }
       ]
     ],
     "splash": {
