@@ -23,6 +23,22 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginTop: 20,
+    },
+    controlWrapper: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 20,
+        gap: 10,
+        maxWidth: 290,
+        marginHorizontal: 'auto',
+        width: '100%',
+    },
+    playButtonWrapper: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 24,
     }
 });
 

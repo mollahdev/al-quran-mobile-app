@@ -9,8 +9,8 @@ export const StoreProvider = ({ children }) => {
      */ 
     const [player, _setPlayer] = useState({
         isPlaying: false,
-        isLoop: false,
-        isShuffle: false,
+        isRepeating: false,
+        isShuffling: false,
         trackId: null,
         currentTime: 0,
     })
