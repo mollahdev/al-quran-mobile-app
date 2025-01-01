@@ -5,6 +5,7 @@ const data = [
         audio: require('./1/audio.mp3'),
         artwork: require('./1/thumbnail.png'),
         duration: 37,
+        currentTime: 0,
     },
 ]
 

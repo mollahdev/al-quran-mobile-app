@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
         flex: 1,
         gap: 40,
         justifyContent: 'space-between',
-        paddingBottom: 40,
+        paddingBottom: 70,
     },
 
     artwork: {

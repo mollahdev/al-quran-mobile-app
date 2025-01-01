@@ -13,6 +13,7 @@ export const StoreProvider = ({ children }) => {
         isShuffling: false,
         trackId: null,
         currentTime: 0,
+        duration: 120,
     })
     /**
      * favorite tracks ID list  

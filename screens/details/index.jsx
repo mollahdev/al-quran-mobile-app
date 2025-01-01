@@ -9,6 +9,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import PlayButton from './play-button';
 import RepeatButton from './repeat-button';
 import ShuffleButton from './shuffle-button';
+import Slider from './slider';
 
 export default function DetailsScreen(props) {
     const { getTrackById, toggleFavorite, isFavoriteById, setPlayer, player } = useContext(StoreContext);
@@ -45,7 +46,10 @@ export default function DetailsScreen(props) {
                 </View>
                 <View>
                     <View>
-                        <Text>Timer</Text>
+                        <Slider 
+                            currentTime={player.currentTime} 
+                            duration={player.duration}
+                        />
                     </View>
                     <View style={styles.controlWrapper}>
                         <RepeatButton 
