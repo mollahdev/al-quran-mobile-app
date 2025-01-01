@@ -1,27 +1,31 @@
 import { createContext, useState, useEffect, useCallback, useMemo } from "react"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 export const StoreContext = createContext()
+import { Audio } from 'expo-av';
 import data from 'data'
 
 export const StoreProvider = ({ children }) => {
     /**
      * currently playing track  
      */ 
+    const [_sound, _setSound] = useState({
+        id: null,
+        title: null,
+        audio: null,
+        artwork: null,
+        duration: null,
+    });
+    /**
+     * player state 
+     */ 
     const [player, _setPlayer] = useState({
         isPlaying: false,
         isRepeating: false,
         isShuffling: false,
         trackId: null,
-        currentTime: 0,
-        duration: 120,
     })
-    /**
-     * favorite tracks ID list  
-     */ 
+    const [currentTime, setCurrentTime] = useState(0)
     const [_favorite, _setFavorite] = useState([])
-    /**
-     * recent tracks ID list  
-     */
     const [_recent, _setRecent] = useState([])
 
     /**
@@ -37,7 +41,7 @@ export const StoreProvider = ({ children }) => {
         // restore last played track
         AsyncStorage.getItem('player').then((data) => {
             if (data) {
-                _setPlayer(JSON.parse(data))
+                _setPlayer( prev => ({...prev, ...JSON.parse(data)}))
             }
         })
         // restore recent tracks ID list
@@ -46,7 +50,13 @@ export const StoreProvider = ({ children }) => {
                 _setRecent(JSON.parse(data))
             }
         })
-    })
+    }, [])
+
+    useEffect(() => {
+        if( _sound.audio ) {
+            _sound.audio.setIsLoopingAsync(player.isRepeating)
+        }
+    }, [player, _sound])
 
     /**
      * toggle favorite track 
@@ -72,22 +82,51 @@ export const StoreProvider = ({ children }) => {
     }, [_favorite])
 
     /**
-     * set player state and update recent
+     * set player state
      */ 
-    const setPlayer = useCallback((data) => {
-        _setPlayer(data)
+    const setPlayer = (data) => {
+        _setPlayer(prev => ({...prev, ...data}))
         AsyncStorage.setItem('player', JSON.stringify(data))
+    }
 
-        // update recent tracks list
+    // get track by id
+    const getTrackById = useCallback((trackId) => {
+        return data.find((item) => item.id === trackId)
+    }, [])
+
+    /**
+     * set sound and update recent 
+     */ 
+    const setSound = async (trackId) => {
+        if( player.trackId == trackId ) return;
+        const track = getTrackById(trackId)
+
+        // support for IOS
+        await Audio.setAudioModeAsync({
+            playsInSilentModeIOS: true, // Ensures audio plays in silent mode
+        });
+    
+        const { sound } = await Audio.Sound.createAsync(
+            track.audio, // Replace with your audio URL if you need
+            { shouldPlay: false }
+        );
+
+        setCurrentTime(0)
+        _setSound({...track, audio: sound});
+        setPlayer({
+            isPlaying: false,
+            trackId: trackId
+        })
+
         _setRecent((prev) => {
-            const state = Array.from(prev)
             // check if track id already exists in recent, move this to first index
-            const index = state.indexOf(data.trackId)
+            const state = Array.from(prev)
+            const index = state.indexOf(trackId)
             if (index !== -1) {
                 state.splice(index, 1)
-            } else 
+            } 
             
-            state.unshift(data.trackId)
+            state.unshift(trackId)
             // limit recent to 5
             if (state.length > 5) {
                 state.pop()
@@ -96,17 +135,31 @@ export const StoreProvider = ({ children }) => {
             AsyncStorage.setItem('recent', JSON.stringify(state))
             return state
         })
-    }, [])
-
-    // get track by id
-    const getTrackById = useCallback((trackId) => {
-        return data.find((item) => item.id === trackId)
-    }, [])
+    }
 
     // get recent tracks
     const recentTracks = useMemo(() => {
         return _recent.map((id) => getTrackById(id))
     }, [_recent])
+
+    const playSound = async () => {
+        if( !_sound.audio ) return;
+        await _sound.audio.playAsync();
+        return setPlayer({ isPlaying: true });
+    }
+    
+    const toggleSound = async () => {
+        if( !_sound.audio ) return;
+    
+        if (player.isPlaying) {
+            await _sound.audio.pauseAsync();
+            setPlayer({ isPlaying: false });
+        } else {
+
+            await _sound.audio.playAsync();
+            setPlayer({ isPlaying: true });
+        }
+    }
 
     return (
         <StoreContext.Provider value={{
@@ -116,6 +169,11 @@ export const StoreProvider = ({ children }) => {
             toggleFavorite,
             isFavoriteById,
             getTrackById,
+            setSound,
+            playSound,
+            toggleSound,
+            currentTime,
+            setCurrentTime,
         }}>
             {children}
         </StoreContext.Provider>

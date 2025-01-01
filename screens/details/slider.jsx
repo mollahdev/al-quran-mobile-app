@@ -19,9 +19,9 @@ export default function Slider(props) {
                 <View style={styles.line}></View>
             </View>
             
-            <View>
-                <Text>{convertSecondsToMinutes(currentTime)}</Text>
-                <Text>{convertSecondsToMinutes(duration)}</Text>
+            <View style={styles.timeWrapper}>
+                <Text style={styles.time}>{convertSecondsToMinutes(currentTime)}</Text>
+                <Text style={styles.time}>{convertSecondsToMinutes(duration)}</Text>
             </View>
         </View>
     );
@@ -51,4 +51,15 @@ const styles = StyleSheet.create({
         zIndex: 1,
         padding: 0,
     },
+    timeWrapper: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginLeft:  Platform.select({ ios: 0, android: 10 }),
+        width: width - Platform.select({ ios: 40, android: 70 }),
+    },
+    time: {
+        color: '#878787',
+        fontSize: 12,
+        fontFamily: 'Satoshi-Bold',
+    }
 });

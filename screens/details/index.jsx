@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { Text, Image, View, Pressable } from 'react-native';
 import PageWrapper from '@/components/page-wrapper';
 import { StoreContext } from '@/services/store';
@@ -12,23 +12,19 @@ import ShuffleButton from './shuffle-button';
 import Slider from './slider';
 
 export default function DetailsScreen(props) {
-    const { getTrackById, toggleFavorite, isFavoriteById, setPlayer, player } = useContext(StoreContext);
+    const { getTrackById, toggleFavorite, isFavoriteById, setPlayer, player, toggleSound, setSound, currentTime } = useContext(StoreContext);
     const { route } = props;
 
     const id = route.params.id;
     const track = getTrackById(id);
     const isFavorite = isFavoriteById(id);
 
+    useEffect(() => {
+        setSound(id);
+    }, []);
+
     // if the id is single digit, add 0 to the front
     const trackIdString = id < 10 ? `0${id}` : id;
-
-    const updatePlayer = (key, value) => {
-        setPlayer({
-            ...player,
-            [key]: value
-        });
-    };
-
     return (
         <PageWrapper>
             <View style={styles.container}>
@@ -45,15 +41,13 @@ export default function DetailsScreen(props) {
                     </View>
                 </View>
                 <View>
-                    <View>
-                        <Slider 
-                            currentTime={player.currentTime} 
-                            duration={player.duration}
-                        />
-                    </View>
+                    <Slider 
+                        currentTime={currentTime} 
+                        duration={track.duration}
+                    />
                     <View style={styles.controlWrapper}>
                         <RepeatButton 
-                            onPress={() => updatePlayer('isRepeating', !player.isRepeating)} 
+                            onPress={() => setPlayer({isRepeating: !player.isRepeating})} 
                             isActive={player.isRepeating}
                         />
                         <View style={styles.playButtonWrapper}>
@@ -61,7 +55,7 @@ export default function DetailsScreen(props) {
                                 <Ionicons name="play-skip-back" size={24} color="#A7A7A7" />
                             </Pressable>
                             <PlayButton 
-                                onPress={() => updatePlayer('isPlaying', !player.isPlaying)} 
+                                onPress={toggleSound} 
                                 isActive={player.isPlaying} 
                             />
                             <Pressable>
@@ -69,7 +63,7 @@ export default function DetailsScreen(props) {
                             </Pressable>
                         </View>
                         <ShuffleButton 
-                            onPress={() => updatePlayer('isShuffling', !player.isShuffling)} 
+                            onPress={() => setPlayer({isShuffling: !player.isShuffling})} 
                             isActive={player.isShuffling}
                         />
                     </View>
