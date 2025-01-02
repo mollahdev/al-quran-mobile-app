@@ -23,8 +23,6 @@ export default function DetailsScreen(props) {
         setSound(id);
     }, []);
 
-    // if the id is single digit, add 0 to the front
-    const trackIdString = id < 10 ? `0${id}` : id;
     return (
         <PageWrapper>
             <View style={styles.container}>
@@ -34,7 +32,7 @@ export default function DetailsScreen(props) {
                         source={track.artwork}
                     />
                     <View style={styles.titleContainer}>
-                        <Text style={heading.lg}>{trackIdString} {track.title}</Text>
+                        <Text style={heading.lg}>{track.title}</Text>
                         <Pressable onPress={() => toggleFavorite(id)}>
                             <Heart isActive={isFavorite} size={24} />
                         </Pressable>

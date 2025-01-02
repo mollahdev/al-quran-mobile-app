@@ -2,7 +2,7 @@ import { createContext, useState, useEffect, useCallback, useMemo } from "react"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 export const StoreContext = createContext()
 import { Audio } from 'expo-av';
-import data from 'data'
+import data from './data';
 
 export const StoreProvider = ({ children }) => {
     /**
@@ -137,7 +137,7 @@ export const StoreProvider = ({ children }) => {
         
         sound.setOnPlaybackStatusUpdate((status) => {
             if (status.isLoaded && !_isSliding) {
-                _setCurrentTime(Math.floor(status.positionMillis / 1000))
+                _setCurrentTime(status.positionMillis)
                 // if track is finished, set player state to not playing
                 if (status.didJustFinish && !status.isLooping) {
                     setPlayer({ isPlaying: false })
@@ -183,10 +183,11 @@ export const StoreProvider = ({ children }) => {
         }
     }
 
-    const setCurrentTime = (seconds) => {
+    const setCurrentTime = (milliseconds) => {
         if( !_sound.audio ) return;
         setIsSliding(false)
-        _sound.audio.setPositionAsync(seconds * 1000)
+        _setCurrentTime(milliseconds)
+        _sound.audio.setPositionAsync(milliseconds)
     }
 
     return (

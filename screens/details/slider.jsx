@@ -1,6 +1,6 @@
 import { StyleSheet, View, Text, Dimensions, Platform } from 'react-native';
 import { default as SliderCore } from '@react-native-community/slider';
-import { convertSecondsToMinutes } from '@/helpers/utils';
+import { convertMilliseconds } from '@/helpers/utils';
 
 export default function Slider(props) {
     const { currentTime, duration, setCurrentTime, setIsSliding } = props;
@@ -23,8 +23,8 @@ export default function Slider(props) {
             </View>
             
             <View style={styles.timeWrapper}>
-                <Text style={styles.time}>{convertSecondsToMinutes(currentTime)}</Text>
-                <Text style={styles.time}>{convertSecondsToMinutes(duration)}</Text>
+                <Text style={styles.time}>{convertMilliseconds(currentTime)}</Text>
+                <Text style={styles.time}>{convertMilliseconds(duration)}</Text>
             </View>
         </View>
     );
