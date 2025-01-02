@@ -8,6 +8,7 @@ export const StoreProvider = ({ children }) => {
     /**
      * currently playing track  
      */ 
+    const [_isSliding, setIsSliding] = useState(false)
     const [_sound, _setSound] = useState({
         id: null,
         title: null,
@@ -24,7 +25,7 @@ export const StoreProvider = ({ children }) => {
         isShuffling: false,
         trackId: null,
     })
-    const [currentTime, setCurrentTime] = useState(0)
+    const [currentTime, _setCurrentTime] = useState(0)
     const [_favorite, _setFavorite] = useState([])
     const [_recent, _setRecent] = useState([])
 
@@ -57,6 +58,29 @@ export const StoreProvider = ({ children }) => {
             _sound.audio.setIsLoopingAsync(player.isRepeating)
         }
     }, [player, _sound])
+
+    /**
+     * set recent track
+     */ 
+    const setRecent = useCallback((trackId) => {
+        _setRecent((prev) => {
+            // check if track id already exists in recent, move this to first index
+            const state = Array.from(prev)
+            const index = state.indexOf(trackId)
+            if (index !== -1) {
+                state.splice(index, 1)
+            } 
+            
+            state.unshift(trackId)
+            // limit recent to 5
+            if (state.length > 5) {
+                state.pop()
+            }
+
+            AsyncStorage.setItem('recent', JSON.stringify(state))
+            return state
+        })
+    })
 
     /**
      * toggle favorite track 
@@ -98,7 +122,7 @@ export const StoreProvider = ({ children }) => {
      * set sound and update recent 
      */ 
     const setSound = async (trackId) => {
-        if( player.trackId == trackId ) return;
+        if( player.trackId == trackId && _sound.audio) return;
         const track = getTrackById(trackId)
 
         // support for IOS
@@ -106,35 +130,33 @@ export const StoreProvider = ({ children }) => {
             playsInSilentModeIOS: true, // Ensures audio plays in silent mode
         });
     
-        const { sound } = await Audio.Sound.createAsync(
+        const { sound, status } = await Audio.Sound.createAsync(
             track.audio, // Replace with your audio URL if you need
-            { shouldPlay: false }
+            { shouldPlay: player.isPlaying }
         );
-
-        setCurrentTime(0)
-        _setSound({...track, audio: sound});
-        setPlayer({
-            isPlaying: false,
-            trackId: trackId
-        })
-
-        _setRecent((prev) => {
-            // check if track id already exists in recent, move this to first index
-            const state = Array.from(prev)
-            const index = state.indexOf(trackId)
-            if (index !== -1) {
-                state.splice(index, 1)
-            } 
-            
-            state.unshift(trackId)
-            // limit recent to 5
-            if (state.length > 5) {
-                state.pop()
+        
+        sound.setOnPlaybackStatusUpdate((status) => {
+            if (status.isLoaded && !_isSliding) {
+                _setCurrentTime(Math.floor(status.positionMillis / 1000))
+                // if track is finished, set player state to not playing
+                if (status.didJustFinish && !status.isLooping) {
+                    setPlayer({ isPlaying: false })
+                    sound.setPositionAsync(0)
+                    sound.stopAsync()
+                }
             }
+        });
 
-            AsyncStorage.setItem('recent', JSON.stringify(state))
-            return state
-        })
+        if( status.isLoaded ) {
+            _setSound({...track, audio: sound});
+            setPlayer({
+                trackId: trackId
+            })
+
+            if( player.isPlaying ) {
+                setRecent(trackId)
+            }
+        }
     }
 
     // get recent tracks
@@ -150,7 +172,7 @@ export const StoreProvider = ({ children }) => {
     
     const toggleSound = async () => {
         if( !_sound.audio ) return;
-    
+
         if (player.isPlaying) {
             await _sound.audio.pauseAsync();
             setPlayer({ isPlaying: false });
@@ -159,6 +181,12 @@ export const StoreProvider = ({ children }) => {
             await _sound.audio.playAsync();
             setPlayer({ isPlaying: true });
         }
+    }
+
+    const setCurrentTime = (seconds) => {
+        if( !_sound.audio ) return;
+        setIsSliding(false)
+        _sound.audio.setPositionAsync(seconds * 1000)
     }
 
     return (
@@ -174,6 +202,7 @@ export const StoreProvider = ({ children }) => {
             toggleSound,
             currentTime,
             setCurrentTime,
+            setIsSliding
         }}>
             {children}
         </StoreContext.Provider>

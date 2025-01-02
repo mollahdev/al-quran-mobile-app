@@ -3,7 +3,7 @@ import { default as SliderCore } from '@react-native-community/slider';
 import { convertSecondsToMinutes } from '@/helpers/utils';
 
 export default function Slider(props) {
-    const { currentTime, duration } = props;
+    const { currentTime, duration, setCurrentTime, setIsSliding } = props;
 
     return (
         <View>
@@ -11,10 +11,13 @@ export default function Slider(props) {
                 <SliderCore
                     style={styles.slider}
                     minimumValue={0}
+                    value={currentTime}
                     maximumValue={duration}
                     thumbTintColor="#B7B7B7"
                     minimumTrackTintColor="#B7B7B7"
                     maximumTrackTintColor="#8888884D"
+                    onValueChange={setIsSliding}
+                    onSlidingComplete={setCurrentTime}
                 />
                 <View style={styles.line}></View>
             </View>

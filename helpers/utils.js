@@ -5,7 +5,9 @@ export const convertSecondsToMinutes = (seconds) => {
 
     if (hours > 0) {
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    } else {
+    } else if( minutes > 0 ) {
         return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    } else {
+        return `0:${secs.toString().padStart(2, '0')}`;
     }
 };

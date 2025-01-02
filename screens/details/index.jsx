@@ -12,7 +12,7 @@ import ShuffleButton from './shuffle-button';
 import Slider from './slider';
 
 export default function DetailsScreen(props) {
-    const { getTrackById, toggleFavorite, isFavoriteById, setPlayer, player, toggleSound, setSound, currentTime } = useContext(StoreContext);
+    const { getTrackById, toggleFavorite, isFavoriteById, setPlayer, player, toggleSound, setSound, currentTime, setCurrentTime, setIsSliding } = useContext(StoreContext);
     const { route } = props;
 
     const id = route.params.id;
@@ -43,7 +43,9 @@ export default function DetailsScreen(props) {
                 <View>
                     <Slider 
                         currentTime={currentTime} 
+                        setCurrentTime={setCurrentTime}
                         duration={track.duration}
+                        setIsSliding={setIsSliding}
                     />
                     <View style={styles.controlWrapper}>
                         <RepeatButton 
