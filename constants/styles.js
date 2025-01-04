@@ -4,6 +4,7 @@ export const heading = StyleSheet.create({
     sm: {
         fontSize: 16,
         fontWeight: 'bold',
+        color: "#D6D6D6",
         fontFamily: 'Satoshi-Bold',
     },
     md: {

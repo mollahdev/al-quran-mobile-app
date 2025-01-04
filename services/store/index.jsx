@@ -26,7 +26,7 @@ export const StoreProvider = ({ children }) => {
         trackId: null,
     })
     const [currentTime, _setCurrentTime] = useState(0)
-    const [_favorite, _setFavorite] = useState([])
+    const [favorite, _setFavorite] = useState([])
     const [_recent, _setRecent] = useState([])
 
     /**
@@ -102,8 +102,8 @@ export const StoreProvider = ({ children }) => {
      * check if track is favorite
      */
     const isFavoriteById = useCallback((trackId) => {
-        return _favorite.includes(trackId)
-    }, [_favorite])
+        return favorite.includes(trackId)
+    }, [favorite])
 
     /**
      * set player state
@@ -123,6 +123,10 @@ export const StoreProvider = ({ children }) => {
      */ 
     const setSound = async (trackId) => {
         if( player.trackId == trackId && _sound.audio) return;
+        if( _sound.audio ) {
+            await _sound.audio.unloadAsync()
+        }
+
         const track = getTrackById(trackId)
 
         // support for IOS
@@ -203,7 +207,8 @@ export const StoreProvider = ({ children }) => {
             toggleSound,
             currentTime,
             setCurrentTime,
-            setIsSliding
+            setIsSliding,
+            favorite,
         }}>
             {children}
         </StoreContext.Provider>
