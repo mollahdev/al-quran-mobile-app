@@ -1,9 +1,9 @@
 import { createContext, useState, useEffect, useCallback, useMemo } from "react"
 import AsyncStorage from '@react-native-async-storage/async-storage';
-export const StoreContext = createContext()
 import { Audio } from 'expo-av';
 import data from './data';
 
+export const StoreContext = createContext()
 export const StoreProvider = ({ children }) => {
     /**
      * currently playing track  
@@ -28,6 +28,10 @@ export const StoreProvider = ({ children }) => {
     const [currentTime, _setCurrentTime] = useState(0)
     const [favorite, _setFavorite] = useState([])
     const [_recent, _setRecent] = useState([])
+    const [search, setSearch] = useState({
+        query: '',
+        isFocused: false,
+    })
 
     /**
      * restore favorite, player, and recent state from async storage
@@ -209,6 +213,8 @@ export const StoreProvider = ({ children }) => {
             setCurrentTime,
             setIsSliding,
             favorite,
+            search,
+            setSearch
         }}>
             {children}
         </StoreContext.Provider>

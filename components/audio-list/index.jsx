@@ -11,8 +11,8 @@ import { convertMilliseconds } from 'helpers/utils';
 
 export default function AudioList( props ) {
     const navigation = useNavigation();
-    const { title, filterValue, isFavoriteOnly } = props;
-    const { isFavoriteById, toggleFavorite, player, currentTime, favorite } = useContext(StoreContext);
+    const { title, isFavoriteOnly } = props;
+    const { isFavoriteById, toggleFavorite, player, currentTime, favorite, search } = useContext(StoreContext);
 
     const onPress = (id) => {
         navigation.navigate('Details', { id });
@@ -27,21 +27,20 @@ export default function AudioList( props ) {
     } , [favorite, isFavoriteOnly]);
 
     const filteredData = useMemo(() => {
-        if( 'string' !== typeof filterValue ) return beforeFilter;
-        return beforeFilter.filter(item => item.title.toLowerCase().includes(filterValue.toLowerCase()));
-    }, [filterValue, favorite])
+        return beforeFilter.filter(item => item.title.toLowerCase().includes(search.query.toLowerCase()));
+    }, [search.query, favorite])
 
     const isLastIndex = (index) => index === filteredData.length - 1;
     const isCurrentTrack = (id) => player.trackId === id && player.isPlaying;
 
     return (
         <View style={styles.wrapper}>
-            <Text style={heading.lg}>{title}</Text>
+            <Text style={heading.lg}>{search.isFocused ? 'Search result' : title}</Text>
             <View style={styles.list}>
                 { filteredData.length > 0 ? filteredData.map((item, index) => (
                     <View key={item.id} style={{
                         ...styles.item,
-                        marginBottom: isLastIndex(index) ? 30 : 0
+                        marginBottom: isLastIndex(index) ? 15 : 0
                     }}>
                         <Pressable style={styles.button} onPress={() => onPress(item.id)}>
                             <Play isActive={isCurrentTrack(item.id)}/>

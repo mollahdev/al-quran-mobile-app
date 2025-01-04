@@ -6,15 +6,17 @@ const style = StyleSheet.create({
         backgroundColor: colors.dark200,
         flexDirection: 'row',
         justifyContent: 'space-around',
+        height: 70,
     },
 
     navButton: {
         flex: 1,
         justifyContent: 'center',
+        borderWidth: 0,
     },
 
     navItem: {
-        height: 73,
+        height: 70,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',

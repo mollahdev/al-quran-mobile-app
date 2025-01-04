@@ -1,14 +1,18 @@
+import { useContext } from 'react';
 import { FlatList } from 'react-native';
 import PageWrapper from '@/components/page-wrapper';
 import { currentAudio, recentAudio, audioList } from './constants';
+import { StoreContext } from '@/services/store';
 
 export default function HomeScreen() {
+    const { search } = useContext(StoreContext);
+
     const renderItem = ({ item }) => {
         switch (item.key) {
             case currentAudio.key:
-                return <item.component />;
+                return search.isFocused ? null : <item.component />;
             case recentAudio.key:
-                return <item.component />;
+                return search.isFocused ? null : <item.component />;
             case audioList.key:
                 return <item.component title="All Surah"/>;
             default:

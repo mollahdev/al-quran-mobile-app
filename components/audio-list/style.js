@@ -4,15 +4,14 @@ import colors from "constants/colors";
 const styles = StyleSheet.create({
     wrapper: {
         gap: 22,
-    },
-    list: {
-        gap: 22,
+        marginTop: 20,
     },
     item: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         gap: 10,
+        paddingVertical: 11,
     },
     button: {
         flexDirection: 'row',
