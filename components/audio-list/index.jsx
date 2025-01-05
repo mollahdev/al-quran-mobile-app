@@ -6,16 +6,21 @@ import { heading } from 'constants/styles';
 import Heart from '@/components/heart';
 import { StoreContext } from '@/services/store';
 import styles from './style';
-import Play from './play';
+import Play from '../play';
 import { convertMilliseconds } from 'helpers/utils';
 
 export default function AudioList( props ) {
     const navigation = useNavigation();
     const { title, isFavoriteOnly } = props;
-    const { isFavoriteById, toggleFavorite, player, currentTime, favorite, search } = useContext(StoreContext);
+    const { isFavoriteById, toggleFavorite, player, sound, currentTime, favorite, search, setSound, currentAudio } = useContext(StoreContext);
 
-    const onPress = (id) => {
-        navigation.navigate('Details', { id });
+    const onPress = async (id) => {
+        if( sound.id == id && currentAudio ) {
+            return navigation.navigate('Details');
+        }
+
+        setSound(id)
+        navigation.navigate('Details');
     }
 
     const beforeFilter = useMemo(() => {
@@ -31,7 +36,7 @@ export default function AudioList( props ) {
     }, [search.query, favorite])
 
     const isLastIndex = (index) => index === filteredData.length - 1;
-    const isCurrentTrack = (id) => player.trackId === id && player.isPlaying;
+    const isCurrentTrack = (id) => sound.id === id && player.isPlaying;
 
     return (
         <View style={styles.wrapper}>

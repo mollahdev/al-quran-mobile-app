@@ -4,12 +4,13 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import colors from '@/constants/colors';
 
 export default function PlayButton( props ) {
-    const { isActive, onPress } = props;
+    const { isActive, onPress, style } = props;
     const color = 'white';
 
     return (
         <Pressable
             onPress={onPress}
+            style={style}
         >
             <View style={styles.container}>
                 { isActive ? (

@@ -1,9 +1,11 @@
+import { useContext } from 'react';
 import { StyleSheet, View, Text, Dimensions, Platform } from 'react-native';
 import { default as SliderCore } from '@react-native-community/slider';
 import { convertMilliseconds } from '@/helpers/utils';
+import { StoreContext } from '@/services/store';
 
-export default function Slider(props) {
-    const { currentTime, duration, setCurrentTime, setIsSliding } = props;
+export default function Slider() {
+    const { sound, currentTime, currentAudio } = useContext(StoreContext);
 
     return (
         <View>
@@ -12,19 +14,24 @@ export default function Slider(props) {
                     style={styles.slider}
                     minimumValue={0}
                     value={currentTime}
-                    maximumValue={duration}
+                    maximumValue={sound.duration}
                     thumbTintColor="#B7B7B7"
                     minimumTrackTintColor="#B7B7B7"
                     maximumTrackTintColor="#8888884D"
-                    onValueChange={setIsSliding}
-                    onSlidingComplete={setCurrentTime}
+                    onSlidingStart={async () => {
+                        await currentAudio.pauseAsync();
+                    }}
+                    onSlidingComplete={async val => {
+                        await currentAudio.setPositionAsync(val);
+                        await currentAudio.playAsync();
+                    }}
                 />
                 <View style={styles.line}></View>
             </View>
             
             <View style={styles.timeWrapper}>
                 <Text style={styles.time}>{convertMilliseconds(currentTime)}</Text>
-                <Text style={styles.time}>{convertMilliseconds(duration)}</Text>
+                <Text style={styles.time}>{convertMilliseconds(sound.duration)}</Text>
             </View>
         </View>
     );

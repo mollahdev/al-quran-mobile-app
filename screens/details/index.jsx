@@ -1,5 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { Text, Image, View, Pressable } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import PageWrapper from '@/components/page-wrapper';
 import { StoreContext } from '@/services/store';
 import styles from './style';
@@ -11,60 +12,108 @@ import RepeatButton from './repeat-button';
 import ShuffleButton from './shuffle-button';
 import Slider from './slider';
 
-export default function DetailsScreen(props) {
-    const { getTrackById, toggleFavorite, isFavoriteById, setPlayer, player, toggleSound, setSound, currentTime, setCurrentTime, setIsSliding } = useContext(StoreContext);
-    const { route } = props;
+export default function DetailsScreen() {
+    const { toggleFavorite, isFavoriteById, setPlayer, player, 
+        toggleSound, sound, playNext, playPrevious } = useContext(StoreContext);
 
-    const id = route.params.id;
-    const track = getTrackById(id);
-    const isFavorite = isFavoriteById(id);
-
+    const navigation = useNavigation();
+    const isFavorite = isFavoriteById(sound.id);
+    
     useEffect(() => {
-        setSound(id);
-    }, []);
+        if( !sound.id) {
+            navigation.navigate('Home');
+        }
+    }, [sound]);
 
+    const isLoading = !sound.id || player.isBuffering;
+
+    const playNextTrack = ( id ) => {
+        if( isLoading ) return;
+        playNext(id);
+    };
+
+    const playPreviousTrack = ( id ) => {
+        if( isLoading ) return;
+        playPrevious(id);
+    };
+    
     return (
         <PageWrapper>
             <View style={styles.container}>
+                
                 <View>
-                    <Image
-                        style={styles.artwork}
-                        source={track.artwork}
-                    />
+                    <View style={styles.artwork}>
+                        <Image
+                            style={styles.artwork}
+                            source={sound.artwork}
+                        />
+                        { isLoading && (
+                            <View style={styles.loading}>
+                                <Text style={heading.lg}>Loading...</Text>
+                            </View>
+                        ) } 
+                    </View>
+                    
                     <View style={styles.titleContainer}>
-                        <Text style={heading.lg}>{track.title}</Text>
-                        <Pressable onPress={() => toggleFavorite(id)}>
+                        <Text style={heading.lg}>{sound.title}</Text>
+                        <Pressable onPress={() => toggleFavorite(sound.id)}>
                             <Heart isActive={isFavorite} size={24} />
                         </Pressable>
                     </View>
                 </View>
                 <View>
-                    <Slider 
-                        currentTime={currentTime} 
-                        setCurrentTime={setCurrentTime}
-                        duration={track.duration}
-                        setIsSliding={setIsSliding}
-                    />
+                    <Slider/>
                     <View style={styles.controlWrapper}>
                         <RepeatButton 
-                            onPress={() => setPlayer({isRepeating: !player.isRepeating})} 
+                            onPress={() => {
+                                if( isLoading ) return;
+                                setPlayer({isRepeating: !player.isRepeating})
+                            }} 
                             isActive={player.isRepeating}
+                            style={{
+                                opacity: isLoading ? 0.4 : 1,
+                            }}
                         />
                         <View style={styles.playButtonWrapper}>
-                            <Pressable>
-                                <Ionicons name="play-skip-back" size={24} color="#A7A7A7" />
+                            <Pressable onPress={() => {
+                                if( isLoading ) return;
+                                playPreviousTrack(sound.id)
+                            }}>
+                                <Ionicons 
+                                    name="play-skip-back" size={24} color="#A7A7A7" 
+                                    style={{
+                                        opacity: isLoading ? 0.4 : 1,
+                                    }}
+                                />
                             </Pressable>
                             <PlayButton 
-                                onPress={toggleSound} 
-                                isActive={player.isPlaying} 
+                                onPress={() => {
+                                    if( isLoading ) return;
+                                    toggleSound()
+                                }} 
+                                isActive={!isLoading && player.isPlaying} 
+                                style={{
+                                    opacity: isLoading ? 0.4 : 1,
+                                }}
                             />
-                            <Pressable>
-                                <Ionicons name="play-skip-forward" size={24} color="#A7A7A7" />
+                            <Pressable onPress={() => playNextTrack(sound.id)}>
+                                <Ionicons 
+                                    name="play-skip-forward" size={24} color="#A7A7A7" 
+                                    style={{
+                                        opacity: isLoading ? 0.4 : 1,
+                                    }}
+                                />
                             </Pressable>
                         </View>
                         <ShuffleButton 
-                            onPress={() => setPlayer({isShuffling: !player.isShuffling})} 
+                            onPress={() => {
+                                if( player.isRepeating || isLoading) return;
+                                setPlayer({isShuffling: !player.isShuffling})
+                            }} 
                             isActive={player.isShuffling}
+                            style={{
+                                opacity: player.isRepeating || isLoading ? 0.4 : 1,
+                            }}
                         />
                     </View>
                 </View>

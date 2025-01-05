@@ -20,6 +20,8 @@ export default function Search() {
                 value={search.query}
                 onChangeText={text => setSearch(prev => ({...prev, query: text}))}
                 placeholder="Search here"
+                placeholderTextColor="#959595"
+                autoFocus={search.isFocused}
             />
             <Pressable style={styles.button} onPress={closeSearch}>
                 <Entypo name="cross" size={24} color="white" />
@@ -44,7 +46,6 @@ const styles = StyleSheet.create({
         borderWidth: 0,
         flexGrow: 1,
         paddingHorizontal: 14,
-        placeholderTextColor: 'gray',
         color: 'white',
         borderBottomLeftRadius: 8,
         borderTopLeftRadius: 8,

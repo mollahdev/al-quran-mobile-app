@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useCallback, useMemo } from "react"
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import { getRandomTrackId, getNextTrackId, getPreviousTrackId } from "@/helpers/utils";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Audio } from 'expo-av';
 import data from './data';
 
 export const StoreContext = createContext()
@@ -8,8 +9,8 @@ export const StoreProvider = ({ children }) => {
     /**
      * currently playing track  
      */ 
-    const [_isSliding, setIsSliding] = useState(false)
-    const [_sound, _setSound] = useState({
+    const [currentAudio, setCurrentAudio] = useState(null)
+    const [sound, _setSound] = useState({
         id: null,
         title: null,
         audio: null,
@@ -21,11 +22,11 @@ export const StoreProvider = ({ children }) => {
      */ 
     const [player, _setPlayer] = useState({
         isPlaying: false,
+        isBuffering: false,
         isRepeating: false,
         isShuffling: false,
-        trackId: null,
     })
-    const [currentTime, _setCurrentTime] = useState(0)
+    const [currentTime, setCurrentTime] = useState(0)
     const [favorite, _setFavorite] = useState([])
     const [_recent, _setRecent] = useState([])
     const [search, setSearch] = useState({
@@ -36,7 +37,20 @@ export const StoreProvider = ({ children }) => {
     /**
      * restore favorite, player, and recent state from async storage
      */ 
+    const init = async () => {
+        await Audio.setAudioModeAsync({
+            staysActiveInBackground: true,
+            playsInSilentModeIOS: true,
+            interruptionModeIOS: InterruptionModeIOS.DuckOthers,
+            interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
+            shouldDuckAndroid: true,
+            playThroughEarpieceAndroid: true,
+        });
+    }
+
     useEffect(() => {
+        init()
+
         // restore favorite tracks ID list
         AsyncStorage.getItem('favorite').then((data) => {
             if (data) {
@@ -46,7 +60,13 @@ export const StoreProvider = ({ children }) => {
         // restore last played track
         AsyncStorage.getItem('player').then((data) => {
             if (data) {
-                _setPlayer( prev => ({...prev, ...JSON.parse(data)}))
+                const parsedData = JSON.parse(data)
+                _setPlayer( prev => ({
+                    ...prev, 
+                    ...parsedData,
+                    isPlaying: false,
+                    isBuffering: false,
+                }))
             }
         })
         // restore recent tracks ID list
@@ -55,13 +75,34 @@ export const StoreProvider = ({ children }) => {
                 _setRecent(JSON.parse(data))
             }
         })
+
+        return currentAudio ? () => {
+            currentAudio.unloadAsync();
+        } : undefined;
     }, [])
 
     useEffect(() => {
-        if( _sound.audio ) {
-            _sound.audio.setIsLoopingAsync(player.isRepeating)
+        if( currentAudio ) {
+            currentAudio.setIsLoopingAsync(player.isRepeating)
         }
-    }, [player, _sound])
+    }, [player])
+
+    useEffect(() => {
+        if( currentAudio) {
+            currentAudio.setOnPlaybackStatusUpdate((status) => {
+                setPlayer({ 
+                    isPlaying: status.isPlaying,
+                    isBuffering: false
+                })
+                
+                setCurrentTime(status.positionMillis)
+
+                if (status.didJustFinish && !status.isLooping) {
+                    playNext(sound.id)
+                }
+            });
+        }
+    }, [currentAudio])
 
     /**
      * set recent track
@@ -71,13 +112,15 @@ export const StoreProvider = ({ children }) => {
             // check if track id already exists in recent, move this to first index
             const state = Array.from(prev)
             const index = state.indexOf(trackId)
-            if (index !== -1) {
-                state.splice(index, 1)
-            } 
             
-            state.unshift(trackId)
-            // limit recent to 5
-            if (state.length > 5) {
+            if (index === -1) {
+                state.unshift(trackId)
+            } else {
+                state.splice(index, 1)
+                state.unshift(trackId)
+            }
+            
+            if (state.length > 10) {
                 state.pop()
             }
 
@@ -113,12 +156,15 @@ export const StoreProvider = ({ children }) => {
      * set player state
      */ 
     const setPlayer = (data) => {
-        _setPlayer(prev => ({...prev, ...data}))
-        AsyncStorage.setItem('player', JSON.stringify(data))
+        _setPlayer(prev => {
+            const newState = {...prev, ...data}
+            AsyncStorage.setItem('player', JSON.stringify(newState))
+            return newState
+        })
     }
 
     // get track by id
-    const getTrackById = useCallback((trackId) => {
+    const _getTrackById = useCallback((trackId) => {
         return data.find((item) => item.id === trackId)
     }, [])
 
@@ -126,95 +172,90 @@ export const StoreProvider = ({ children }) => {
      * set sound and update recent 
      */ 
     const setSound = async (trackId) => {
-        if( player.trackId == trackId && _sound.audio) return;
-        if( _sound.audio ) {
-            await _sound.audio.unloadAsync()
-        }
 
-        const track = getTrackById(trackId)
-
-        // support for IOS
-        await Audio.setAudioModeAsync({
-            playsInSilentModeIOS: true, // Ensures audio plays in silent mode
-        });
-    
-        const { sound, status } = await Audio.Sound.createAsync(
-            track.audio, // Replace with your audio URL if you need
-            { shouldPlay: player.isPlaying }
-        );
+        if( !trackId ) return;
+        if( sound.id === trackId ) return;
+        if( player.isBuffering ) return;
         
-        sound.setOnPlaybackStatusUpdate((status) => {
-            if (status.isLoaded && !_isSliding) {
-                _setCurrentTime(status.positionMillis)
-                // if track is finished, set player state to not playing
-                if (status.didJustFinish && !status.isLooping) {
-                    setPlayer({ isPlaying: false })
-                    sound.setPositionAsync(0)
-                    sound.stopAsync()
-                }
-            }
-        });
+        setPlayer({ isBuffering: true })
 
-        if( status.isLoaded ) {
-            _setSound({...track, audio: sound});
-            setPlayer({
-                trackId: trackId
-            })
-
-            if( player.isPlaying ) {
-                setRecent(trackId)
-            }
+        if( currentAudio ) {
+            await currentAudio.unloadAsync()
         }
+
+        const track = _getTrackById(trackId)
+        _setSound(track);
+        
+        const { sound: audio } = await Audio.Sound.createAsync(
+            track.audio, // Replace with your audio URL if you need
+            { shouldPlay: true }
+        );
+
+        setCurrentAudio(prev => {
+            if( prev ) {
+                prev.unloadAsync()
+            }
+            _setSound(track)
+            setRecent(trackId)
+            setPlayer({ isBuffering: false })
+            return audio
+        });
+    }
+
+    // play next track
+    const playNext = async (trackId) => {
+        if (player.isShuffling) {
+            trackId = getRandomTrackId(trackId)
+        } else {
+            trackId = getNextTrackId(trackId)
+        }
+        setSound(trackId)
+    }
+
+    // play previous track
+    const playPrevious = async (trackId) => {
+        if (player.isShuffling) {
+            trackId = getRandomTrackId(trackId)
+        } else {
+            trackId = getPreviousTrackId(trackId)
+        }
+        setSound(trackId)
     }
 
     // get recent tracks
     const recentTracks = useMemo(() => {
-        return _recent.map((id) => getTrackById(id))
+        return _recent.map((id) => _getTrackById(id))
     }, [_recent])
-
-    const playSound = async () => {
-        if( !_sound.audio ) return;
-        await _sound.audio.playAsync();
-        return setPlayer({ isPlaying: true });
-    }
     
     const toggleSound = async () => {
-        if( !_sound.audio ) return;
+        if( !currentAudio ) return;
 
         if (player.isPlaying) {
-            await _sound.audio.pauseAsync();
-            setPlayer({ isPlaying: false });
+            await currentAudio.pauseAsync();
         } else {
-
-            await _sound.audio.playAsync();
-            setPlayer({ isPlaying: true });
+            await currentAudio.playAsync();
+            setRecent(sound.id)
         }
-    }
-
-    const setCurrentTime = (milliseconds) => {
-        if( !_sound.audio ) return;
-        setIsSliding(false)
-        _setCurrentTime(milliseconds)
-        _sound.audio.setPositionAsync(milliseconds)
     }
 
     return (
         <StoreContext.Provider value={{
             player,
             recentTracks,
+            currentAudio,
             setPlayer,
             toggleFavorite,
             isFavoriteById,
-            getTrackById,
+            setCurrentTime,
+            sound,
             setSound,
-            playSound,
             toggleSound,
             currentTime,
-            setCurrentTime,
-            setIsSliding,
             favorite,
             search,
-            setSearch
+            setSearch,
+            playNext,
+            playPrevious,
         }}>
             {children}
         </StoreContext.Provider>

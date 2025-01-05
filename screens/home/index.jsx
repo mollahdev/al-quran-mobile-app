@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, View, StyleSheet } from 'react-native';
 import PageWrapper from '@/components/page-wrapper';
 import { currentAudio, recentAudio, audioList } from './constants';
 import { StoreContext } from '@/services/store';
@@ -10,11 +10,11 @@ export default function HomeScreen() {
     const renderItem = ({ item }) => {
         switch (item.key) {
             case currentAudio.key:
-                return search.isFocused ? null : <item.component />;
+                return search.isFocused ? null : <View style={styles.section}><item.component /></View>;
             case recentAudio.key:
                 return search.isFocused ? null : <item.component />;
             case audioList.key:
-                return <item.component title="All Surah"/>;
+                return <View style={styles.section}><item.component title="All Surah"/></View>;
             default:
                 return null;
         }
@@ -23,7 +23,6 @@ export default function HomeScreen() {
     return (
         <PageWrapper>
             <FlatList
-                style={{ paddingHorizontal: 20 }}
                 data={[currentAudio, recentAudio, audioList]}
                 renderItem={renderItem}
                 keyExtractor={item => item.key}
@@ -31,3 +30,9 @@ export default function HomeScreen() {
         </PageWrapper>
     );
 }
+
+const styles = StyleSheet.create({
+    section: {
+        paddingHorizontal: 20,
+    },
+});

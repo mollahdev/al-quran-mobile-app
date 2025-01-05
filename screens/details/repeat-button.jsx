@@ -3,13 +3,14 @@ import colors from '@/constants/colors';
 import Svg, { Path } from "react-native-svg"
 
 export default function RepeatButton( props ) {
-    const { isActive, onPress } = props;
+    const { isActive, onPress, style } = props;
     const color = isActive ? colors.primary : '#6D6D6D';
 
 
     return (
         <Pressable
             onPress={onPress}
+            style={style}
         >
             <Svg
                 width={28}

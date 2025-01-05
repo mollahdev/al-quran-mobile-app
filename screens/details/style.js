@@ -9,6 +9,7 @@ const styles = StyleSheet.create({
         gap: 40,
         justifyContent: 'space-between',
         paddingBottom: 70,
+        position: 'relative',
     },
 
     artwork: {
@@ -16,6 +17,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: height / 2.3,
         objectFit: 'cover',
+        position: 'relative',
     },
 
     titleContainer: {
@@ -39,6 +41,17 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         gap: 24,
+    },
+    loading: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 10,
     }
 });
 

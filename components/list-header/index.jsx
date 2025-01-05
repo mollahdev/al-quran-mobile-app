@@ -7,7 +7,7 @@ import Search from './search';
 import DefaultList from './default';
 
 export default function ListHeader() {
-    const { search, setSearch } = useContext(StoreContext);
+    const { search } = useContext(StoreContext);
 
     return (
         <SafeAreaView style={styles.safe}>

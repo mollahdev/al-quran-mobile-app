@@ -18,7 +18,9 @@ export default function DetailsHeader(props) {
                         <MaterialCommunityIcons name="chevron-left" size={26} color="#DDDDDD" />
                     </View>
                 </Pressable>
-                <Text style={heading.md}>Now {player.isPlaying ? 'playing': 'paused'}</Text>
+                { player.isBuffering ? <Text style={heading.md}>Loading...</Text> : (
+                    <Text style={heading.md}>Now {player.isPlaying ? 'playing': 'paused'}</Text>
+                ) }
                 <Pressable style={({pressed}) => pressed ? styles.button : {}}>
                     <Entypo name="dots-three-vertical" size={22} color="#DDDDDD" />
                 </Pressable>

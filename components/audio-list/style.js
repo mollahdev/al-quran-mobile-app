@@ -1,10 +1,10 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import colors from "constants/colors";
 
 const styles = StyleSheet.create({
     wrapper: {
         gap: 22,
-        marginTop: 20,
+        marginTop: Platform.select({ ios: 15, android: 30 }),
     },
     item: {
         flexDirection: 'row',

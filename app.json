@@ -29,14 +29,16 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "This app needs access to the microphone for audio playback."
+        "NSMicrophoneUsageDescription": "This app needs access to the microphone for audio playback.",
+        "UIBackgroundModes": ["audio"]
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/app-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": ["android.permission.WAKE_LOCK"]
     },
     "web": {
       "favicon": "./assets/app-icon.png"

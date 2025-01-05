@@ -4,14 +4,14 @@ import { View, StyleSheet } from 'react-native';
 import colors from '@/constants/colors';
 
 export default function Play( props ) {
-    const { isActive } = props;
+    const { isActive, style } = props;
 
     return (
-        <View style={[isActive ? styles.active : styles.inActive, styles.btn]}>
+        <View style={[isActive ? styles.active : styles.inActive, styles.btn, style]}>
             { isActive ? (
-                <Ionicons name="pause-outline" size={20} color="white" />
+                <Ionicons name="pause-outline" size={18} color="white" />
             ) : (
-                <FontAwesome5 name="play" size={16} color="#959595" />
+                <FontAwesome5 name="play" size={14} color="#959595" />
             ) }
         </View>
     )
