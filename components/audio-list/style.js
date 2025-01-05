@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 5,
         fontFamily: 'Satoshi-Regular',
+        flexWrap: 'no-wrap',
     },
     activeDuration: {
         color: colors.primary,

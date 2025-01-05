@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 import { StyleSheet, Pressable, Text, View, SafeAreaView, StatusBar, Platform } from 'react-native';
 import colors from '@/constants/colors';
-import Entypo from '@expo/vector-icons/Entypo';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { heading } from '@/constants/styles';
 import { StoreContext } from 'services/store';
+import Report from '@/components/report';
 
 export default function DetailsHeader(props) {
     const { navigation } = props;
@@ -21,9 +21,7 @@ export default function DetailsHeader(props) {
                 { player.isBuffering ? <Text style={heading.md}>Loading...</Text> : (
                     <Text style={heading.md}>Now {player.isPlaying ? 'playing': 'paused'}</Text>
                 ) }
-                <Pressable style={({pressed}) => pressed ? styles.button : {}}>
-                    <Entypo name="dots-three-vertical" size={22} color="#DDDDDD" />
-                </Pressable>
+                <Report />
             </View>
         </SafeAreaView>
     );
