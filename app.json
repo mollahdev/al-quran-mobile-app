@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "al-quran",
+    "name": "Al-Quran (Bangla Audio)",
     "slug": "al-quran",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/app-icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "plugins": [
       [
@@ -17,32 +17,46 @@
       [
         "expo-font",
         {
-          "fonts": ["assets/fonts/satoshi-bold.otf", "assets/fonts/satoshi-regular.otf"]
+          "fonts": [
+            "assets/fonts/satoshi-bold.otf",
+            "assets/fonts/satoshi-regular.otf"
+          ]
         }
       ]
     ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#0c0c0c"
     },
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app needs access to the microphone for audio playback.",
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ]
       }
     },
     "android": {
+      "versionCode": 1,
       "package": "com.flexlab.alquran",
       "adaptiveIcon": {
         "foregroundImage": "./assets/app-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["android.permission.WAKE_LOCK"]
+      "permissions": [
+        "android.permission.WAKE_LOCK",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "favicon": "./assets/app-icon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1b265db6-ca22-4bdd-a543-0c0f587d904c"
+      }
     }
   }
 }

@@ -3,7 +3,7 @@ import { Pressable, Linking, Alert } from 'react-native';
 
 export default function Report() {
     const handlePress = () => {
-        const email = 'mollah.dev@gmail.com';
+        const email = 'help.flexlab@gmail.com';
         const subject = 'Quran App Bug Report!';
         const body = '';
         const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
