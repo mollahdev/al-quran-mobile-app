@@ -2,8 +2,9 @@ import { createContext, useState, useEffect, useCallback, useMemo } from "react"
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 import { getRandomTrackId, getNextTrackId, getPreviousTrackId } from "@/helpers/utils";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import data from './data';
 
+
+const data = []
 export const StoreContext = createContext()
 export const StoreProvider = ({ children }) => {
     /**

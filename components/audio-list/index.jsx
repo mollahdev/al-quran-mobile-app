@@ -1,7 +1,6 @@
 import { useContext, useMemo } from 'react';
 import { View, Text, Pressable, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import data from '@/services/store/data'
 import { heading } from 'constants/styles';
 import Heart from '@/components/heart';
 import { StoreContext } from '@/services/store';
@@ -9,6 +8,7 @@ import styles from './style';
 import Play from '../play';
 import { convertMilliseconds } from 'helpers/utils';
 
+const data = []
 export default function AudioList( props ) {
     const navigation = useNavigation();
     const { title, isFavoriteOnly } = props;
