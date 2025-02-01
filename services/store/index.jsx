@@ -2,11 +2,18 @@ import { createContext, useState, useEffect, useCallback, useMemo } from "react"
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 import { getRandomTrackId, getNextTrackId, getPreviousTrackId } from "@/helpers/utils";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 
 
-const data = []
+const ASSET_FOLDER = FileSystem.documentDirectory + 'offline-assets/';
 export const StoreContext = createContext()
 export const StoreProvider = ({ children }) => {
+
+    const [data, setData] = useState([])
+    const [downloading, setDownloading] = useState({
+        state: false,
+        progress: null,
+    })
     /**
      * currently playing track  
      */ 
@@ -38,7 +45,66 @@ export const StoreProvider = ({ children }) => {
     /**
      * restore favorite, player, and recent state from async storage
      */ 
+    const fetchRemoteData = async () => {
+        setDownloading({
+            state: true,
+        })
+
+        await FileSystem.makeDirectoryAsync(ASSET_FOLDER, { intermediates: true });
+        const rawResponse = await fetch('http://quran.flexlab.studio')
+        const response = await rawResponse.json()
+
+        for (const asset of response.data) {
+            const audioPath = ASSET_FOLDER + asset.id + '.mp3';
+            const thumbnailPath = ASSET_FOLDER + asset.id + '.png';
+            
+            const audioInfo = await FileSystem.getInfoAsync(audioPath);
+            const thumbnailInfo = await FileSystem.getInfoAsync(thumbnailPath);
+            
+            if (!audioInfo.exists || !thumbnailInfo.exists) {
+                setDownloading({
+                    state: true,
+                    progress: asset,
+                })
+                console.log('Downloading asset', asset.id);
+                await FileSystem.downloadAsync(asset.audio, audioPath);
+                await FileSystem.downloadAsync(asset.artwork, thumbnailPath);
+            }
+        }
+        await AsyncStorage.setItem('audio_meta', JSON.stringify(response.data))
+    }
+
+    const prepareAudio = async () => {
+        const audioRawMeta = await AsyncStorage.getItem('audio_meta');
+        const audioMeta = JSON.parse(audioRawMeta)
+
+        const result = [];
+        for (const asset of audioMeta) {
+            const audioPath = ASSET_FOLDER + asset.id + '.mp3';
+            const thumbnailPath = ASSET_FOLDER + asset.id + '.png';
+            
+            result.push({
+                ...asset,
+                audio: audioPath,
+                artwork: thumbnailPath,
+            });
+        }
+
+        setData(result)
+        setDownloading({
+            state: false,
+        })
+    }
+
     const init = async () => {
+        const audioRawMeta = await AsyncStorage.getItem('audio_meta');
+        const audioMeta = JSON.parse(audioRawMeta)
+
+        if (!audioMeta || (audioMeta || []).length !== 114) {
+            await fetchRemoteData()
+        }
+
+        await prepareAudio()
         await Audio.setAudioModeAsync({
             staysActiveInBackground: true,
             playsInSilentModeIOS: true,
@@ -128,7 +194,7 @@ export const StoreProvider = ({ children }) => {
             AsyncStorage.setItem('recent', JSON.stringify(state))
             return state
         })
-    })
+    }, [data])
 
     /**
      * toggle favorite track 
@@ -144,14 +210,14 @@ export const StoreProvider = ({ children }) => {
             AsyncStorage.setItem('favorite', JSON.stringify(list))
             return list
         })
-    }, [])
+    }, [data])
 
     /**
      * check if track is favorite
      */
     const isFavoriteById = useCallback((trackId) => {
         return favorite.includes(trackId)
-    }, [favorite])
+    }, [favorite, data])
 
     /**
      * set player state
@@ -167,7 +233,7 @@ export const StoreProvider = ({ children }) => {
     // get track by id
     const _getTrackById = useCallback((trackId) => {
         return data.find((item) => item.id === trackId)
-    }, [])
+    }, [data])
 
     /**
      * set sound and update recent 
@@ -188,7 +254,7 @@ export const StoreProvider = ({ children }) => {
         _setSound(track);
         
         const { sound: audio } = await Audio.Sound.createAsync(
-            track.audio, // Replace with your audio URL if you need
+            { uri: track.audio },
             { shouldPlay: true }
         );
 
@@ -226,7 +292,7 @@ export const StoreProvider = ({ children }) => {
     // get recent tracks
     const recentTracks = useMemo(() => {
         return _recent.map((id) => _getTrackById(id))
-    }, [_recent])
+    }, [_recent, data])
     
     const toggleSound = async () => {
         if( !currentAudio ) return;
@@ -241,6 +307,8 @@ export const StoreProvider = ({ children }) => {
 
     return (
         <StoreContext.Provider value={{
+            data,
+            downloading,
             player,
             recentTracks,
             currentAudio,

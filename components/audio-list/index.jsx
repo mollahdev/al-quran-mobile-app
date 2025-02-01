@@ -8,11 +8,10 @@ import styles from './style';
 import Play from '../play';
 import { convertMilliseconds } from 'helpers/utils';
 
-const data = []
 export default function AudioList( props ) {
     const navigation = useNavigation();
     const { title, isFavoriteOnly } = props;
-    const { isFavoriteById, toggleFavorite, player, sound, currentTime, favorite, search, setSound, currentAudio } = useContext(StoreContext);
+    const { data, isFavoriteById, toggleFavorite, player, sound, currentTime, favorite, search, setSound, currentAudio } = useContext(StoreContext);
 
     const onPress = async (id) => {
         if( sound.id == id && currentAudio ) {
@@ -29,11 +28,11 @@ export default function AudioList( props ) {
         } else {
             return data;
         }
-    } , [favorite, isFavoriteOnly]);
+    } , [data, favorite, isFavoriteOnly]);
 
     const filteredData = useMemo(() => {
         return beforeFilter.filter(item => item.title.toLowerCase().includes(search.query.toLowerCase()));
-    }, [search.query, favorite])
+    }, [data, search.query, favorite])
 
     const isLastIndex = (index) => index === filteredData.length - 1;
     const isCurrentTrack = (id) => sound.id === id && player.isPlaying;

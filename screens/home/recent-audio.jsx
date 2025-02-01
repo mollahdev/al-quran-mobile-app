@@ -16,6 +16,8 @@ export default function RecentAudio() {
             <Text style={[heading.lg, styles.heading]}>Recently Played</Text>
             <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
                 { recentTracks.map((track, index) => {
+                    if( !track ) return null
+
                     return (
                         <Pressable style={styles.card} key={index} onPress={async() => {
                             if( sound.id == track.id && currentAudio ) {
@@ -26,7 +28,7 @@ export default function RecentAudio() {
                             navigation.navigate('Details');
                         }}>
                             <View>
-                                <Image source={track.artwork} style={styles.image} />
+                                <Image source={{uri: track.artwork}} style={styles.image} />
                                 <Play style={styles.play} isActive={track.id == sound.id && player.isPlaying} />
                             </View>
                             <Text style={[styles.text, styles.title]}>{track.title}</Text>

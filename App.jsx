@@ -6,6 +6,9 @@ import DetailsScreen from 'screens/details';
 import TabBar from 'components/tab-bar';
 import ListHeader from 'components/list-header';
 import DetailsHeader from 'screens/details/header';
+import Downloading from 'components/downloading';
+import { useContext } from 'react';
+import { StoreContext } from '@/services/store';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -24,6 +27,12 @@ const TabNavigation = () => {
 };
 
 export default function App() {
+  const { downloading } = useContext(StoreContext);
+
+  if( downloading.state ) {
+    return <Downloading />
+  }
+
   return (
     <Stack.Navigator>
       <Stack.Screen name="List" component={TabNavigation} options={{

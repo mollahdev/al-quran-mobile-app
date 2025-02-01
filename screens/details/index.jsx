@@ -45,7 +45,9 @@ export default function DetailsScreen() {
                     <View style={styles.artwork}>
                         <Image
                             style={styles.artwork}
-                            source={sound.artwork}
+                            source={{
+                                uri: sound.artwork
+                            }}
                         />
                         { isLoading && (
                             <View style={styles.loading}>

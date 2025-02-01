@@ -22,7 +22,9 @@ export default function CurrentAudio() {
                 <Text style={[styles.text, styles.duration]}>{convertMilliseconds(currentTime)}</Text>
             </View>
             <View>
-                <Image style={styles.image} source={sound.artwork} />
+                <Image style={styles.image} source={{
+                    uri: sound.artwork
+                }} />
             </View>
             <Image style={styles.shape} source={require('@/assets/shape.png')} />
         </Pressable>
