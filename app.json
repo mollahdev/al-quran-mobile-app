@@ -42,7 +42,7 @@
       "versionCode": 1,
       "package": "com.flexlab.alquran",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/app-icon.png",
+        "foregroundImage": "./assets/splash-icon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
